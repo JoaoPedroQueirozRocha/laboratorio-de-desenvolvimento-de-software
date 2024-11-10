@@ -1,9 +1,14 @@
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { storeToRefs } from 'pinia'
 
 export const useAuth = () => {
     const router = useRouter();
     const authStore = useAuthStore();
+
+    // Use storeToRefs para manter a reatividade
+    const { user, isLoggedIn } = storeToRefs(authStore);
 
     const updateUser = (userData) => {
         authStore.updateUser(userData);
@@ -24,8 +29,8 @@ export const useAuth = () => {
     };
 
     return {
-        user: authStore.user,
-        isLoggedIn: authStore.isLoggedIn,
+        user,
+        isLoggedIn,
         logout,
         savedLocalStorage,
         login,

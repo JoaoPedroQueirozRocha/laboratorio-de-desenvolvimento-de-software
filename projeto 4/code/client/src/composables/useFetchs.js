@@ -59,6 +59,16 @@ export const useFetchs = () => {
         return response.data;
     };
 
+    const createAdvantage = async (data) => {
+        const response = await axios.post('http://localhost:3000/advantage', data);
+        return response.data;
+    };
+
+    const updateAdvantage = async (data) => {
+        const response = await axios.put(`http://localhost:3000/advantage/${data.id}`, data);
+        return response.data;
+    };
+
     return {
         getInstitutions,
         createEnterprise,
@@ -68,5 +78,7 @@ export const useFetchs = () => {
         deleteUser,
         updateUser,
         listAdvantages,
+        createAdvantage,
+        updateAdvantage
     };
 };

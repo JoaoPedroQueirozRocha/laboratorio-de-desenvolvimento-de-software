@@ -2,14 +2,13 @@ import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: JSON.parse(localStorage.getItem('userData')),
+        user: JSON.parse(localStorage.getItem('userData')) || null,
         isLoggedIn: !!localStorage.getItem('userData')
     }),
 
     actions: {
         updateUser(userData) {
             this.user = userData;
-            this.isLoggedIn = true;
             localStorage.setItem('userData', JSON.stringify(userData));
         },
 

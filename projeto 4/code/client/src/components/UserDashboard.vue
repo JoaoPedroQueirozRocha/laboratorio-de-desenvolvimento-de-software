@@ -1,9 +1,5 @@
 <template>
-	<v-card
-		class="mx-auto"
-		min-width="80%"
-		max-width="800"
-	>
+	<v-card class="mx-auto" min-width="80%" max-width="800">
 		<v-card-title class="d-flex justify-space-between align-center">
 			<div>
 				<h2>Perfil do Usuário</h2>
@@ -16,10 +12,7 @@
 				<v-container>
 					<v-row>
 						<!-- Coluna Esquerda -->
-						<v-col
-							cols="12"
-							md="6"
-						>
+						<v-col cols="12" md="6">
 							<v-text-field
 								v-model="userData.name"
 								label="Nome"
@@ -54,10 +47,7 @@
 						</v-col>
 
 						<!-- Coluna Direita -->
-						<v-col
-							cols="12"
-							md="6"
-						>
+						<v-col cols="12" md="6">
 							<template v-if="userType === 'student'">
 								<v-text-field
 									v-model="userData.RG"
@@ -88,34 +78,14 @@
 
 			<v-card-actions class="justify-space-between pa-4">
 				<div>
-					<v-btn
-						v-if="!isEditing"
-						color="primary"
-						class="mr-4"
-						@click="isEditing = true"
-					>
+					<v-btn v-if="!isEditing" color="primary" class="mr-4" @click="isEditing = true">
 						Editar Perfil
 					</v-btn>
-					<v-btn
-						v-else
-						color="primary"
-						class="mr-4"
-						type="submit"
-					>
-						Salvar Alterações
-					</v-btn>
+					<v-btn v-else color="primary" class="mr-4" type="submit"> Salvar Alterações </v-btn>
 
-					<v-dialog
-						v-model="dialog"
-						width="500"
-					>
+					<v-dialog v-model="dialog" width="500">
 						<template v-slot:activator="{ props }">
-							<v-btn
-								color="error"
-								v-bind="props"
-							>
-								Excluir Conta
-							</v-btn>
+							<v-btn color="error" v-bind="props"> Excluir Conta </v-btn>
 						</template>
 
 						<v-card>
@@ -126,19 +96,8 @@
 							</v-card-text>
 							<v-card-actions>
 								<v-spacer></v-spacer>
-								<v-btn
-									color="grey"
-									variant="text"
-									@click="dialog = false"
-								>
-									Cancelar
-								</v-btn>
-								<v-btn
-									color="error"
-									@click="handleDelete"
-								>
-									Sim, excluir conta
-								</v-btn>
+								<v-btn color="grey" variant="text" @click="dialog = false"> Cancelar </v-btn>
+								<v-btn color="error" @click="handleDelete"> Sim, excluir conta </v-btn>
 							</v-card-actions>
 						</v-card>
 					</v-dialog>
@@ -146,6 +105,7 @@
 			</v-card-actions>
 		</v-form>
 	</v-card>
+	{{ userData }}
 </template>
 
 <script setup>

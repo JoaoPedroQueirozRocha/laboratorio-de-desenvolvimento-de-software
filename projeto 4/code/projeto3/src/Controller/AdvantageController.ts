@@ -3,6 +3,12 @@ import { AppDataSource } from '../data-source';
 import { Request, Response } from 'express';
 import { AdvantageService } from '../Services/AdvantageServices';
 import { AdvantageRepository } from '../repositories/AdvantageRepository';
+import multer from 'multer';
+
+// Interface para estender o Request com o arquivo do Multer
+interface MulterRequest extends Request {
+	file?: multer.File;
+}
 
 export class AdvantageController {
 	private advantageService: AdvantageService;
@@ -11,14 +17,13 @@ export class AdvantageController {
 		this.advantageService = new AdvantageService();
 	}
 
-	async create(request: Request, response: Response) {
+	async create(request: MulterRequest, response: Response) {
 		try {
-			const advantageData = request.body;
+			const advantageData: Partial<Advantage> = request.body;
 
-			if ('files' in request && request.files && Array.isArray(request.files)) {
-				advantageData.image = request.files[0].buffer;
-			} else if ('files' in request && request.files) {
-				advantageData.image = (request.files as any)[0].buffer;
+			// Verifica se existe um arquivo na requisição
+			if (request.file) {
+				advantageData.image = request.file.buffer;
 			}
 
 			const advantage = await this.advantageService.create(advantageData);
