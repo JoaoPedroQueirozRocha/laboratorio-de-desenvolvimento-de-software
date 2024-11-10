@@ -1,9 +1,5 @@
 <template>
-	<v-card
-		class="mx-auto"
-		min-width="80%"
-		max-width="800"
-	>
+	<v-card v-if="user" class="mx-auto" min-width="80%" max-width="800">
 		<v-card-title class="d-flex justify-space-between align-center">
 			<div>
 				<h2>Perfil do Usuário</h2>
@@ -16,10 +12,7 @@
 				<v-container>
 					<v-row>
 						<!-- Coluna Esquerda -->
-						<v-col
-							cols="12"
-							md="6"
-						>
+						<v-col cols="12" md="6">
 							<v-text-field
 								v-model="userData.name"
 								label="Nome"
@@ -54,10 +47,7 @@
 						</v-col>
 
 						<!-- Coluna Direita -->
-						<v-col
-							cols="12"
-							md="6"
-						>
+						<v-col cols="12" md="6">
 							<template v-if="userType === 'student'">
 								<v-text-field
 									v-model="userData.RG"
@@ -88,34 +78,14 @@
 
 			<v-card-actions class="justify-space-between pa-4">
 				<div>
-					<v-btn
-						v-if="!isEditing"
-						color="primary"
-						class="mr-4"
-						@click="isEditing = true"
-					>
+					<v-btn v-if="!isEditing" color="primary" class="mr-4" @click="isEditing = true">
 						Editar Perfil
 					</v-btn>
-					<v-btn
-						v-else
-						color="primary"
-						class="mr-4"
-						type="submit"
-					>
-						Salvar Alterações
-					</v-btn>
+					<v-btn v-else color="primary" class="mr-4" type="submit"> Salvar Alterações </v-btn>
 
-					<v-dialog
-						v-model="dialog"
-						width="500"
-					>
+					<v-dialog v-model="dialog" width="500">
 						<template v-slot:activator="{ props }">
-							<v-btn
-								color="error"
-								v-bind="props"
-							>
-								Excluir Conta
-							</v-btn>
+							<v-btn color="error" v-bind="props"> Excluir Conta </v-btn>
 						</template>
 
 						<v-card>
@@ -126,19 +96,8 @@
 							</v-card-text>
 							<v-card-actions>
 								<v-spacer></v-spacer>
-								<v-btn
-									color="grey"
-									variant="text"
-									@click="dialog = false"
-								>
-									Cancelar
-								</v-btn>
-								<v-btn
-									color="error"
-									@click="handleDelete"
-								>
-									Sim, excluir conta
-								</v-btn>
+								<v-btn color="grey" variant="text" @click="dialog = false"> Cancelar </v-btn>
+								<v-btn color="error" @click="handleDelete"> Sim, excluir conta </v-btn>
 							</v-card-actions>
 						</v-card>
 					</v-dialog>
@@ -149,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useFetchs } from '../composables/useFetchs';
 import { useAuth } from '../composables/useAuth';
@@ -164,43 +123,64 @@ const props = defineProps({
 const emit = defineEmits(['logout', 'updateUser']);
 
 const { user, logout, updateUser: updateUserAuth } = useAuth();
-const userType = user.value.type === 'institution' ? 'enterprise' : user.value.type;
-
 const toast = useToast();
 const isEditing = ref(false);
 const dialog = ref(false);
 const { deleteUser, updateUser } = useFetchs();
 
-const userData = reactive({
-	user_id: user.value.id,
-	id: user.value.students?.id || user.value.enterprises?.id || user.value.id,
-	type: user.value.type,
-	name: user.value.name,
-	email: user.value.email,
-	CNPJ: user.value.CNPJ || '',
-	institutionType: user.value.institutionType || '',
-	CPF: user.value.CPF || '',
-	RG: user.value.RG || '',
-	address: user.value.address || '',
-	course: user.value.course || '',
+// Compute userType baseado no user
+const userType = computed(() => {
+	return user.value?.type === 'institution' ? 'enterprise' : user.value?.type;
 });
 
+// Inicializa userData com valores vazios
+const userData = reactive({
+	user_id: '',
+	id: '',
+	type: '',
+	name: '',
+	email: '',
+	CNPJ: '',
+	institutionType: '',
+	CPF: '',
+	RG: '',
+	address: '',
+	course: '',
+});
+
+// Atualiza userData quando user mudar
 watch(
 	() => user.value,
-	(newValue) => {
-		Object.assign(userData, newValue);
+	(newUser) => {
+		if (newUser) {
+			userData.user_id = newUser.id;
+			userData.id = newUser.students?.id || newUser.enterprises?.id || newUser.id;
+			userData.type = newUser.type;
+			userData.name = newUser.name;
+			userData.email = newUser.email;
+			userData.CNPJ = newUser.CNPJ || '';
+			userData.institutionType = newUser.institutionType || '';
+			userData.CPF = newUser.CPF || '';
+			userData.RG = newUser.RG || '';
+			userData.address = newUser.address || '';
+			userData.course = newUser.course || '';
+		}
 	},
-	{ deep: true }
+	{ immediate: true }
 );
 
 const handleSave = async () => {
+	if (!userType.value) return;
+
 	isEditing.value = false;
 	updateUserAuth(userData);
-	await updateUser(userData, userType);
+	await updateUser(userData, userType.value);
 	toast.success('Suas informações foram atualizadas com sucesso!');
 };
 
 const handleDelete = async () => {
+	if (!user.value) return;
+
 	dialog.value = false;
 	if (user.value.enterprises) {
 		await deleteUser(user.value.enterprises.id, userData.user_id, 'enterprise');
