@@ -62,7 +62,7 @@
 							label="Quantidade de moedas"
 							type="number"
 							min="0"
-							:rules="[(v) => v > 0 || 'Quantidade deve ser maior que 0']"
+							:rules="[validatePositive]"
 						></v-text-field>
 						<v-textarea
 							v-model="description"
@@ -113,9 +113,9 @@ const coinsToTransfer = ref(0);
 const description = ref('');
 const account = ref({});
 
-const pageCount = computed(() => {
-	return Math.ceil(students.value.length / itemsPerPage);
-});
+const validatePositive = (v) => v > 0 || 'Quantidade deve ser maior que 0';
+
+const pageCount = computed(() => Math.ceil(students.value.length / itemsPerPage));
 
 const paginatedStudents = computed(() => {
 	const start = (page.value - 1) * itemsPerPage;
