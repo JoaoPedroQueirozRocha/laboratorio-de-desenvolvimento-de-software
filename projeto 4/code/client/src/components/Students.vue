@@ -117,11 +117,13 @@ const pageCount = computed(() => {
 	return Math.ceil(students.value.length / itemsPerPage);
 });
 
-const paginatedStudents = computed(() => {
-	const start = (page.value - 1) * itemsPerPage;
-	const end = start + itemsPerPage;
-	return students.value.slice(start, end);
-});
+const getPaginatedData = (data, page, itemsPerPage) => {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return data.slice(start, end);
+};
+
+const paginatedStudents = computed(() => getPaginatedData(students.value, page.value, itemsPerPage));
 
 const openTransferDialog = (student) => {
 	selectedStudent.value = student;
