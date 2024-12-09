@@ -48,7 +48,7 @@
 		<v-pagination v-if="students.length" v-model="page" :length="pageCount" :total-visible="7" class="mt-4" />
 
 		<!-- Transfer Dialog -->
-		<v-dialog v-model="dialog" max-width="500px">
+		<v-dialog v-model="dialogState.open" max-width="500px">
 			<v-card>
 				<v-card-title>
 					<span>Transferir Moedas</span>
@@ -56,9 +56,9 @@
 
 				<v-card-text>
 					<v-container>
-						<p>Aluno: {{ selectedStudent?.user?.name }}</p>
+						<p>Aluno: {{ dialogState.selectedStudent?.user?.name }}</p>
 						<v-text-field
-							v-model="coinsToTransfer"
+							v-model="dialogState.coinsToTransfer"
 							label="Quantidade de moedas"
 							type="number"
 							min="0"
@@ -83,7 +83,7 @@
 						variant="text"
 						@click="transferCoins"
 						:loading="transferLoading"
-						:disabled="!coinsToTransfer || coinsToTransfer <= 0"
+						:disabled="!dialogState.coinsToTransfer || dialogState.coinsToTransfer <= 0"
 					>
 						Transferir
 					</v-btn>
@@ -106,12 +106,14 @@ const students = ref([]);
 const page = ref(1);
 const itemsPerPage = 10;
 const loading = ref(true);
-const dialog = ref(false);
 const transferLoading = ref(false);
-const selectedStudent = ref(null);
-const coinsToTransfer = ref(0);
 const description = ref('');
 const account = ref({});
+const dialogState = ref({
+	open: false,
+	selectedStudent: null,
+	coinsToTransfer: 0,
+});
 
 const pageCount = computed(() => {
 	return Math.ceil(students.value.length / itemsPerPage);
@@ -124,24 +126,20 @@ const paginatedStudents = computed(() => {
 });
 
 const openTransferDialog = (student) => {
-	selectedStudent.value = student;
-	coinsToTransfer.value = 0;
-	dialog.value = true;
+	dialogState.value = { open: true, selectedStudent: student, coinsToTransfer: 0 };
 };
 
 const closeDialog = () => {
-	dialog.value = false;
-	selectedStudent.value = null;
-	coinsToTransfer.value = 0;
+	dialogState.value = { open: false, selectedStudent: null, coinsToTransfer: 0 };
 };
 
 const transferCoins = async () => {
 	try {
 		transferLoading.value = true;
 		await sendCoins(account.value.id, {
-			coins: coinsToTransfer.value,
+			coins: dialogState.value.coinsToTransfer,
 			professorId: user.professors?.id,
-			studentId: selectedStudent.value.id,
+			studentId: dialogState.value.selectedStudent.id,
 			description: description.value,
 		});
 		toast.success('Moedas transferidas com sucesso!');
